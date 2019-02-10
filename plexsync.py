@@ -4,9 +4,9 @@ from plexapi.myplex import MyPlexAccount
 import getpass
 from multiprocessing.dummy import Pool as ThreadPool 
 
-pool = ThreadPool(10) 
-username = input('What is your username? ')
-password = getpass.getpass(prompt ='What is your password? ')
+pool = ThreadPool(5) 
+username = input('Username: ')
+password = getpass.getpass(prompt ='Password: ')
 account = MyPlexAccount(username, password)
 
 server_1_name = 'Hades'
@@ -40,7 +40,7 @@ def checkshow(show_name):
                     ep.markWatched()
                     i += 1
                 break
-    print("Marked ", i ," episodes of ",show_name," watched")
+    print("Marked", i ,"episodes of",show_name,"watched")
 
 #pool.map(showshowname, common_shows)
 pool.map(checkshow, common_shows)
