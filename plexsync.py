@@ -36,8 +36,8 @@ def checkshow(show_name):
                 if ep.isWatched and not ep2.isWatched:
                     ep2.markWatched()
                     i += 1
-                #elif ep2.isWatched and not ep.isWatched:
-                #    ep.markWatched()
+                elif ep2.isWatched and not ep.isWatched:
+                    ep.markWatched()
                 break
     print("Marked ", i ," episodes of ",show_name," watched")
 
