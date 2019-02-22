@@ -76,7 +76,7 @@ def getwatched(shows):
     print("Marked", s2 ,"episodes of",shows,"watched on",server_2_name)
 
 if __name__ == "__main__":
-    pool = multiprocessing.dummy.Pool(5)
+    pool = multiprocessing.dummy.Pool(10)
     pool.map(getwatched, common_shows)
     pool.close()
 print('Checked ',allshows, 'shows with',allepisodess1,'episodes on',server_1_name,'and',allepisodess2,'episodes on',server_2_name)
