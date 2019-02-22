@@ -72,7 +72,7 @@ def getwatched(shows):
     if len(set1diff) > 0:
         for sdiff1 in set1diff:
             try:
-                #conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
+                conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
                 s2 += 1
             except:
                 print('ERROR--Can\'t mark: ',sdiff1,'watched')
@@ -82,7 +82,7 @@ def getwatched(shows):
     if len(set2diff) > 0:
         for sdiff2 in set2diff:
             try:
-                #conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
+                conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
                 s1 += 1
             except:
                 print('ERROR--Can\'t mark: ',sdiff2,'watched')
