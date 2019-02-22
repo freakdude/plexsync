@@ -3,12 +3,25 @@
 import getpass
 from plexapi.myplex import MyPlexAccount
 import multiprocessing.dummy
+import argparse
+
+parser = argparse.ArgumentParser(description='Get Servers from user')
+parser.add_argument('-s1','--server1', help='Server 1 Name from Plex',required=True)
+parser.add_argument('-s2','--server2',help='Server 2 Name from Plex', required=True)
+args = parser.parse_args()
+
+## show values ##
+print("Server1: {}".format(args.server1))
+print("Server2: {}".format(args.server2))
+
+
+
 username = input('Username: ')
 password = getpass.getpass(prompt ='Password: ')
 account = MyPlexAccount(username, password)
 
-server_1_name = 'Hades'
-server_2_name = 'Hades-Rack'
+server_1_name = args.server1
+server_2_name = args.server2
 server_1 = account.resource(server_1_name)
 server_2 = account.resource(server_2_name)
 print('Connecting....')
