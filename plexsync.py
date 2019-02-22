@@ -4,6 +4,7 @@ import getpass
 from plexapi.myplex import MyPlexAccount
 import multiprocessing.dummy
 import argparse
+import re
 
 parser = argparse.ArgumentParser(description='Get Servers from user')
 parser.add_argument('-s1','--server1', help='Server 1 Name from Plex',required=True)
@@ -36,6 +37,7 @@ server_1_shows = set(list(map((lambda x: x.title), conn_1.library.section('TV Sh
 server_2_shows = set(list(map((lambda x: x.title), conn_2.library.section('TV Shows').search())))
 
 common_shows = server_1_shows & server_2_shows
+#common_shows = ['NCIS: Los Angeles']
 
 def getwatched(shows):
     global allshows
@@ -47,7 +49,7 @@ def getwatched(shows):
     allshows += 1
     for ep in conn_1.library.section('TV Shows').get(shows).episodes():
         allepisodess1 += 1
-        strep = str(ep).split(':')[2]
+        strep = re.sub(r'^\<.*\d\:', ' ' ,str(ep))
         serverdict['s1'][strep] = ep.title
         if ep.isWatched == True:
             s1set.add(strep)
@@ -55,7 +57,7 @@ def getwatched(shows):
             continue
     for ep2 in conn_2.library.section('TV Shows').get(shows).episodes():
         allepisodess2 += 1
-        strep2 = str(ep2).split(':')[2]
+        strep2 = re.sub(r'^\<.*\d\:', ' ' ,str(ep2))
         serverdict['s2'][strep2] = ep2.title
         if ep2.isWatched == True:
             s2set.add(strep2)
@@ -63,12 +65,14 @@ def getwatched(shows):
             continue
     set1diff = s1set.difference(s2set)
     set2diff = s2set.difference(s1set)
+    #print(set1diff)
+    #print(set2diff)
     s1 = 0
     s2 = 0
     if len(set1diff) > 0:
         for sdiff1 in set1diff:
             try:
-                conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
+                #conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
                 s2 += 1
             except:
                 print('ERROR--Can\'t mark: ',sdiff1,'watched')
@@ -78,7 +82,7 @@ def getwatched(shows):
     if len(set2diff) > 0:
         for sdiff2 in set2diff:
             try:
-                conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
+                #conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
                 s1 += 1
             except:
                 print('ERROR--Can\'t mark: ',sdiff2,'watched')
