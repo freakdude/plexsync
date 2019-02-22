@@ -58,7 +58,7 @@ def getwatched(shows):
                 conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
                 s2 += 1
             except:
-                print('ERROR--Can\'t mark: ',shows,serverdict['s2'][sdiff1],'watched')
+                print('ERROR--Can\'t mark: ',sdiff1,'watched')
                 continue
     else:
         pass
@@ -68,7 +68,7 @@ def getwatched(shows):
                 conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
                 s1 += 1
             except:
-                print('ERROR--Can\'t mark: ',shows,serverdict['s1'][sdiff2],'watched')
+                print('ERROR--Can\'t mark: ',sdiff2,'watched')
                 continue
     else:
         pass
@@ -76,7 +76,7 @@ def getwatched(shows):
     print("Marked", s2 ,"episodes of",shows,"watched on",server_2_name)
 
 if __name__ == "__main__":
-    pool = multiprocessing.dummy.Pool(5)
+    pool = multiprocessing.dummy.Pool(10)
     pool.map(getwatched, common_shows)
     pool.close()
 print('Checked ',allshows, 'shows with',allepisodess1,'episodes on',server_1_name,'and',allepisodess2,'episodes on',server_2_name)
