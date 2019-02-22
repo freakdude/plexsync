@@ -54,21 +54,29 @@ def getwatched(shows):
     s2 = 0
     if len(set1diff) > 0:
         for sdiff1 in set1diff:
-            conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
-            s2 += 1
+            try:
+                conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
+                s2 += 1
+            except:
+                print('ERROR--Can\'t mark: ',shows,serverdict['s2'][sdiff1],'watched')
+                continue
     else:
         pass
     if len(set2diff) > 0:
         for sdiff2 in set2diff:
-            conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
-            s1 += 1
+            try:
+                conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
+                s1 += 1
+            except:
+                print('ERROR--Can\'t mark: ',shows,serverdict['s1'][sdiff2],'watched')
+                continue
     else:
         pass
     print("Marked", s1 ,"episodes of",shows,"watched on",server_1_name)
     print("Marked", s2 ,"episodes of",shows,"watched on",server_2_name)
 
 if __name__ == "__main__":
-    pool = multiprocessing.dummy.Pool(10)
+    pool = multiprocessing.dummy.Pool(5)
     pool.map(getwatched, common_shows)
     pool.close()
 print('Checked ',allshows, 'shows with',allepisodess1,'episodes on',server_1_name,'and',allepisodess2,'episodes on',server_2_name)
