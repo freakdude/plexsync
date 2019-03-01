@@ -49,7 +49,7 @@ def getwatched(shows):
     allshows += 1
     for ep in conn_1.library.section('TV Shows').get(shows).episodes():
         allepisodess1 += 1
-        strep = re.sub(r'^\<.*\d\:', ' ' ,str(ep))
+        strep = re.sub(r'^\<.*\d\:|\>', '' ,str(ep))
         serverdict['s1'][strep] = ep.title
         if ep.isWatched == True:
             s1set.add(strep)
@@ -57,7 +57,7 @@ def getwatched(shows):
             continue
     for ep2 in conn_2.library.section('TV Shows').get(shows).episodes():
         allepisodess2 += 1
-        strep2 = re.sub(r'^\<.*\d\:', ' ' ,str(ep2))
+        strep2 = re.sub(r'^\<.*\d\:|\>', '' ,str(ep2))
         serverdict['s2'][strep2] = ep2.title
         if ep2.isWatched == True:
             s2set.add(strep2)
