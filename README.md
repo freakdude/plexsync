@@ -14,7 +14,6 @@ or
 python3 plexsync.py -s1 PLEXSERVER1 -s2 PLEXSERVER2 -t token
 
 
-Get Servers from user
 
 optional arguments:
   -h, --help            show this help message and exit
