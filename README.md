@@ -7,7 +7,11 @@ pip3 install plexapi
 
 Usage:
 
-python3 plexsync.py -s1 PLEXSERVER1 -s2 PLEXSERVER2
+python3 plexsync.py -s1 PLEXSERVER1 -s2 PLEXSERVER2 -u useranme
+
+or
+
+python3 plexsync.py -s1 PLEXSERVER1 -s2 PLEXSERVER2 -t token
 
 
 Get Servers from user
@@ -17,4 +21,7 @@ optional arguments:
   -s1 SERVER1, --server1 SERVER1
                         Server 1 Name from Plex
   -s2 SERVER2, --server2 SERVER2
-                        Server 2 Name from Plex 
+                        Server 2 Name from Plex
+
+
+
