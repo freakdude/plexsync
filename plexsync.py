@@ -2,42 +2,50 @@
 # *-* coding:utf-8 *-*
 
 import getpass
+from plexapi.myplex import PlexServer
 from plexapi.myplex import MyPlexAccount
 import multiprocessing.dummy
 import argparse
-import re
 import yaml
 
 parser = argparse.ArgumentParser(description='Sync Watched Between 2 Servers')
 parser.add_argument('-s1', '--server1', help='Server 1 Name from Plex', required=True)
 parser.add_argument('-s2', '--server2', help='Server 2 Name from Plex', required=True)
 parser.add_argument('-u', '--username', help='Username for Plex')
+parser.add_argument('-t', '--token', help='Token for plex')
 # parser.add_argument('-p', '--password', help='Password for Plex')
 # parser.add_argument('-pf', '--file', help='Password for Plex in file')
 
 
 args = parser.parse_args()
 
-
 print("Server1: {}".format(args.server1))
 print("Server2: {}".format(args.server2))
 
-username = args.username
-# password = args.password
-# username = input('Username: ')
-password = getpass.getpass(prompt='Password: ')
+if args.username:
+    username = args.username
+    password = getpass.getpass(prompt='Password: ')
+    account = MyPlexAccount(username, password)
+    server_1_name = args.server1
+    server_2_name = args.server2
+    server_1 = account.resource(server_1_name)
+    server_2 = account.resource(server_2_name)
+    print('Connecting....')
+
+    conn_1 = server_1.connect()
+    conn_2 = server_2.connect()
+    print('Conncted to ', server_1_name, server_2_name)
 
 
-account = MyPlexAccount(username, password)
+elif args.token:
+    conn_1 = PlexServer(args.server1,args.token)
+    conn_2 = PlexServer(args.server2,args.token)
 
-server_1_name = args.server1
-server_2_name = args.server2
-server_1 = account.resource(server_1_name)
-server_2 = account.resource(server_2_name)
-print('Connecting....')
-conn_1 = server_1.connect()
-conn_2 = server_2.connect()
-print('Conncted to ', server_1_name, server_2_name)
+else:
+    print('plexsync.py --help')
+
+
+
 allepisodess1 = 0
 allepisodess2 = 0
 allshows = 0
@@ -47,73 +55,63 @@ server_2_shows = set(list(map((lambda x: x.title), conn_2.library.section('TV Sh
 
 common_shows = server_1_shows & server_2_shows
 
-
 def getwatched(shows):
     global allshows
     global allepisodess1
     global allepisodess2
-    serverdict = {'s1': {}, 's2': {}}
     s1set = set()
     s2set = set()
     allshows += 1
-    for ep in conn_1.library.section('TV Shows').get(shows).episodes():
-        allepisodess1 += 1
-        strep = re.sub(r'^\<.*\d\:|\>', '', str(ep)).lower()
-        serverdict['s1'][strep] = ep.title
-        if ep.isWatched is True:
-            s1set.add(strep)
-        else:
-            continue
-    for ep2 in conn_2.library.section('TV Shows').get(shows).episodes():
-        allepisodess2 += 1
-        strep2 = re.sub(r'^\<.*\d\:|\>', '', str(ep2)).lower()
-        serverdict['s2'][strep2] = ep2.title
-        if ep2.isWatched is True:
-            s2set.add(strep2)
-        else:
-            continue
+    for ep1 in conn_1.library.section('TV Shows').get(shows).watched():
+        s1set.add(str(ep1.parentIndex) + ':' + str(ep1.index))
+
+    for ep2 in conn_2.library.section('TV Shows').get(shows).watched():
+        s2set.add(str(ep2.parentIndex) + ':' + str(ep2.index))
+    '''
     with open('watched1.yml', 'a+') as f:
         yaml.dump(serverdict['s1'], f, default_flow_style=False)
     with open('watched2.yml', 'a+') as g:
         yaml.dump(serverdict['s2'], g, default_flow_style=False)
+    '''
 
-# print(serverdict)
     set1diff = s1set.difference(s2set)
     set2diff = s2set.difference(s1set)
-#    print(set1diff)
-#    print(set2diff)
     s1 = 0
     s2 = 0
 
     if len(set1diff) > 0:
-        for sdiff1 in set1diff:
+        for i in set1diff:
+            a = i.partition(':')
             try:
-                conn_2.library.section('TV Shows').get(shows).get(serverdict['s2'][sdiff1]).markWatched()
+                conn_2.library.section('TV Shows').get(shows).episode(title=None, season=int(a[0]),
+                                                                      episode=int(a[2])).markWatched()
                 s2 += 1
             except:
-                print('ERROR--Can\'t mark:{} watched'.format(sdiff1))
+                print('ERROR--Can\'t mark:{} watched'.format(shows + ' ' + i))
                 continue
     else:
         pass
     if len(set2diff) > 0:
-        for sdiff2 in set2diff:
+        for i2 in set2diff:
+            a2 = i2.partition(':')
             try:
-                conn_1.library.section('TV Shows').get(shows).get(serverdict['s1'][sdiff2]).markWatched()
-                s1 += 1
+                conn_1.library.section('TV Shows').get(shows).episode(title=None, season=int(a2[0]),
+                                                                      episode=int(a2[2])).markWatched()
             except:
-                print('ERROR--Can\'t mark:{} watched'.format(sdiff2))
+                print('ERROR--Can\'t mark:{} watched'.format(shows + ' ' + i2))
                 continue
     else:
         pass
     if s1 or s2 > 0:
-        print("Marked {} episodes of {} watched on {}".format(s1,shows,server_1_name))
-        print("Marked {} episodes of {} watched on {}".format(s2,shows,server_2_name))
+        print("\nMarked {} episodes of {} watched on {}".format(s1,shows,args.server1))
+        print("Marked {} episodes of {} watched on {}".format(s2,shows,args.server2))
     else:
         pass
 
-
 if __name__ == "__main__":
-    pool = multiprocessing.dummy.Pool(10)
+    #for i in common_shows:
+    #    getwatched(i)
+    pool = multiprocessing.dummy.Pool(30)
     pool.map(getwatched, common_shows)
     pool.close()
-print('Checked ', allshows, 'shows with', allepisodess1, 'episodes on', server_1_name, 'and', allepisodess2, 'episodes on', server_2_name)
+print('\nChecked ', allshows, 'shows with', allepisodess1, 'episodes on', args.server1, 'and', allepisodess2, 'episodes on', args.server2)
